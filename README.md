@@ -2,7 +2,7 @@
 
 A lightweight browser app for tracking your degree average as you go, with a running weighted average (RWA) that updates the moment you add a grade.
 
-No install, no build step — just open `index.html`.
+No install, no build step - just open `index.html`.
 
 ![Screenshot of the app showing RWA, year averages, and target analysis](screenshot.png)
 
@@ -13,7 +13,7 @@ No install, no build step — just open `index.html`.
 - Tracks module grades across Year 2 and Year 3, each with configurable credit weightings
 - Computes a **running weighted average** normalised to the years that have data (so if you've only entered Year 2 grades, the RWA reflects Year 2 alone, not a half-baked weighted sum)
 - For each target grade (default: 70%, 75%, 80%), shows the average you need across all remaining credits to hit it
-- Persists your grades in browser local storage — grades survive page refreshes
+- Persists your grades in browser local storage - grades survive page refreshes
 
 ## How to run
 
