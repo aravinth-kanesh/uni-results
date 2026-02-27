@@ -616,6 +616,45 @@ function shake(el) {
   setTimeout(() => el.style.animation = '', 300);
 }
 
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.weightings || !data.totalCredits || !data.modules || !Array.isArray(data.targets)) {
+        showToast('Invalid file: missing required fields');
+        return;
+      }
+      for (const mods of Object.values(data.modules)) {
+        if (!Array.isArray(mods)) { showToast('Invalid file: modules data is malformed'); return; }
+        for (const mod of mods) {
+          if (typeof mod.grade !== 'number' || typeof mod.credits !== 'number') {
+            showToast('Invalid file: module data is malformed');
+            return;
+          }
+        }
+      }
+      state = data;
+      for (const year of Object.keys(state.weightings)) {
+        state.modules[year] = state.modules[year] || [];
+      }
+      if (!state.weightings[state.activeYear]) {
+        state.activeYear = Math.min(...Object.keys(state.weightings).map(Number));
+      }
+      saveState();
+      closeSettings();
+      render();
+      showToast('Data imported');
+    } catch {
+      showToast('Could not read file - is it valid JSON?');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
 function exportCSV() {
   const rows = ['Year,Name,Grade (%),Credits'];
   for (const year of Object.keys(state.modules).map(Number).sort()) {

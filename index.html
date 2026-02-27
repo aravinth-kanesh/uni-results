@@ -64,8 +64,10 @@
           <div class="export-row">
             <button class="btn-export" onclick="exportCSV()">Export CSV</button>
             <button class="btn-export" onclick="exportJSON()">Export JSON</button>
+            <button class="btn-export" onclick="document.getElementById('import-input').click()">Import JSON</button>
+            <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
           </div>
-          <p class="settings-note">Downloads a file you can use as a backup or to move between browsers.</p>
+          <p class="settings-note">Export saves a backup; import restores from a previously exported JSON file.</p>
         </div>
 
       </div>
