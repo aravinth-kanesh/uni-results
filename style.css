@@ -622,31 +622,6 @@ body {
 .ts-vhard      { background: #FFEDD5; color: #C2410C; }
 .ts-impossible { background: #FEE2E2; color: #B91C1C; }
 
-/* Degree classifications */
-
-.cls-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 14px;
-}
-
-.cls-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 9px 14px;
-  border-radius: var(--radius-xs);
-}
-
-.cls-item .cls-name { font-size: 13px; font-weight: 500; }
-.cls-item .cls-range { font-size: 13px; font-weight: 700; }
-
-.cls-first  { background: #EEF2FF; color: #4338CA; }
-.cls-upper  { background: #EFF6FF; color: #1D4ED8; }
-.cls-lower  { background: #FFFBEB; color: #B45309; }
-.cls-third  { background: #FFF7ED; color: #C2410C; }
-
 /* Module classification colour helpers */
 .mc-first  { background: #EEF2FF; color: #4338CA; }
 .mc-upper  { background: #EFF6FF; color: #1D4ED8; }
@@ -901,9 +876,8 @@ body {
   }
 
   .analysis-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
   }
 }
 

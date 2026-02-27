@@ -17,7 +17,6 @@ class UniResults:
         self._calculate_rwa()
 
     def _calculate_rwa(self):
-        """Compute running weighted average based on completed credits."""
         rwa = 0
         total_weight = 0
         for year, weight in self.weightings.items():
@@ -28,7 +27,6 @@ class UniResults:
         self.rwa = rwa / total_weight if total_weight > 0 else 0
 
     def get_rwa(self):
-        """Return current running weighted average."""
         return self.rwa
 
     def required_average_for_remaining_credits(self, target, total_credits_per_year):

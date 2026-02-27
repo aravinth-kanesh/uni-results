@@ -99,7 +99,6 @@ function loadState() {
     const saved = localStorage.getItem('uni-results-state');
     if (saved) {
       state = JSON.parse(saved);
-      // Ensure keys are numbers where needed
       state.modules[2] = state.modules[2] || [];
       state.modules[3] = state.modules[3] || [];
     } else {
