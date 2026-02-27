@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>University Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Shake animation for invalid input */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="header-logo">🎓</div>
+        <h1>University Results</h1>
+      </div>
+      <button class="settings-btn" onclick="openSettings()">
+        ⚙ Settings
+      </button>
+    </div>
+  </header>
+
+  <!-- Settings modal -->
+  <div id="settings-overlay" class="overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="modal-close-btn" onclick="closeSettings()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="settings-group">
+          <h3>Year Weightings</h3>
+          <div class="settings-row">
+            <label>Year 2 contribution</label>
+            <div class="input-unit-group">
+              <input type="number" id="weight-2" min="0" max="100" value="40">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="settings-row">
+            <label>Year 3 contribution</label>
+            <div class="input-unit-group">
+              <input type="number" id="weight-3" min="0" max="100" value="60">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <p class="settings-note">These don't need to sum to 100. Only years with grades entered contribute to the RWA.</p>
+        </div>
+
+        <div class="settings-group">
+          <h3>Total Credits per Year</h3>
+          <div class="settings-row">
+            <label>Year 2 total credits</label>
+            <input type="number" id="total-2" value="120">
+          </div>
+          <div class="settings-row">
+            <label>Year 3 total credits</label>
+            <input type="number" id="total-3" value="120">
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h3>Target Grades</h3>
+          <div class="settings-row">
+            <label>Targets (comma-separated)</label>
+            <input type="text" id="targets-input" value="70, 75, 80" style="width:160px;text-align:left">
+          </div>
+          <p class="settings-note">e.g. <code>60, 70, 80</code></p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="resetSettings()">Reset Defaults</button>
+        <button class="btn-primary" onclick="applySettings()">Apply Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Stats Overview -->
+    <section class="stats-overview">
+
+      <!-- RWA Hero -->
+      <div class="rwa-card">
+        <div class="rwa-label">Running Weighted Average</div>
+        <div class="rwa-value" id="rwa-display">--</div>
+        <div class="classification-badge" id="classification-badge">No data yet</div>
+        <div class="rwa-breakdown" id="rwa-breakdown"></div>
+      </div>
+
+      <!-- Year cards (sit directly in the 3-column grid) -->
+      <div class="year-stat-card">
+        <div class="year-stat-header">
+          <span class="year-label">Year 2</span>
+          <span class="year-weight-pill" id="year2-weight">40% of degree</span>
+        </div>
+        <div class="year-avg no-data" id="year2-avg">--</div>
+        <div class="year-credits-label" id="year2-credits">0 / 120 credits</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="year2-progress" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="year-stat-card">
+        <div class="year-stat-header">
+          <span class="year-label">Year 3</span>
+          <span class="year-weight-pill" id="year3-weight">60% of degree</span>
+        </div>
+        <div class="year-avg no-data" id="year3-avg">--</div>
+        <div class="year-credits-label" id="year3-credits">0 / 120 credits</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="year3-progress" style="width:0%"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Content Grid -->
+    <section class="content-grid">
+
+      <!-- Grade Input Panel -->
+      <div class="card">
+        <h2>Module Grades</h2>
+
+        <div class="year-tabs">
+          <button class="tab active" data-year="2" onclick="switchTab(2)">Year 2</button>
+          <button class="tab" data-year="3" onclick="switchTab(3)">Year 3</button>
+        </div>
+
+        <!-- Add form -->
+        <div class="add-form">
+          <div class="form-group">
+            <label>Grade (%)</label>
+            <input type="number" id="grade-input" min="0" max="100"
+                   placeholder="e.g. 75" onkeydown="handleEnter(event)" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label>Credits</label>
+            <select id="credits-input">
+              <option value="15">15 credits</option>
+              <option value="20">20 credits</option>
+              <option value="30">30 credits</option>
+              <option value="40">40 credits</option>
+              <option value="45">45 credits</option>
+              <option value="60">60 credits</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="label-spacer">&nbsp;</label>
+            <button class="btn-add" onclick="addModule()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Module list -->
+        <div id="modules-container"></div>
+      </div>
+
+      <!-- Analysis Column -->
+      <div class="analysis-col">
+
+        <!-- Target Analysis -->
+        <div class="card">
+          <h2>Target Analysis</h2>
+          <p class="card-subtitle">Minimum average needed across all remaining credits to hit each target.</p>
+          <div id="targets-display"></div>
+        </div>
+
+        <!-- Degree Classifications -->
+        <div class="card">
+          <h2>Degree Classifications</h2>
+          <div class="cls-list">
+            <div class="cls-item cls-first">
+              <span class="cls-name">First Class</span>
+              <span class="cls-range">70%+</span>
+            </div>
+            <div class="cls-item cls-upper">
+              <span class="cls-name">Upper Second (2:1)</span>
+              <span class="cls-range">60-69%</span>
+            </div>
+            <div class="cls-item cls-lower">
+              <span class="cls-name">Lower Second (2:2)</span>
+              <span class="cls-range">50-59%</span>
+            </div>
+            <div class="cls-item cls-third">
+              <span class="cls-name">Third Class</span>
+              <span class="cls-range">40-49%</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /analysis-col -->
+
+    </section><!-- /content-grid -->
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
