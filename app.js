@@ -93,14 +93,17 @@ const DEFAULT_STATE = {
 };
 
 let state;
+let editingKey = null;
+let pendingYearConfig = null;
 
 function loadState() {
   try {
     const saved = localStorage.getItem('uni-results-state');
     if (saved) {
       state = JSON.parse(saved);
-      state.modules[2] = state.modules[2] || [];
-      state.modules[3] = state.modules[3] || [];
+      for (const year of Object.keys(state.weightings)) {
+        state.modules[year] = state.modules[year] || [];
+      }
     } else {
       state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     }
@@ -130,6 +133,14 @@ function computeResults() {
   }
 
   return uni;
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // Classification helpers
@@ -169,6 +180,7 @@ function fmt(n, dp = 1) {
 function render() {
   const uni = computeResults();
   renderStats(uni);
+  renderTabs();
   renderModules();
   renderTargets(uni);
 }
@@ -177,7 +189,7 @@ function renderStats(uni) {
   const rwa = uni.getRwa();
   const hasAnyData = Object.values(state.modules).some(m => m.length > 0);
 
-  // RWA
+  // RWA card
   const rwaEl = document.getElementById('rwa-display');
   const badgeEl = document.getElementById('classification-badge');
   const breakdownEl = document.getElementById('rwa-breakdown');
@@ -208,30 +220,38 @@ function renderStats(uni) {
     breakdownEl.innerHTML = lines.join('<br>');
   }
 
-  // Year cards
-  for (const year of [2, 3]) {
+  // Year cards -- remove old ones and re-render
+  const overview = document.querySelector('.stats-overview');
+  overview.querySelectorAll('.year-stat-card').forEach(el => el.remove());
+
+  const years = Object.keys(state.weightings).map(Number).sort();
+  for (const year of years) {
     const avg = uni.getYearAvg(year);
     const credits = uni.getYearCredits(year);
     const total = state.totalCredits[year] || 120;
     const weight = state.weightings[year] || 0;
 
-    const avgEl = document.getElementById(`year${year}-avg`);
-    const credEl = document.getElementById(`year${year}-credits`);
-    const progEl = document.getElementById(`year${year}-progress`);
-    const pillEl = document.getElementById(`year${year}-weight`);
-
-    if (avg === null) {
-      avgEl.textContent = '--';
-      avgEl.className = 'year-avg no-data';
-    } else {
-      avgEl.textContent = fmt(avg) + '%';
-      avgEl.className = 'year-avg';
-    }
-
-    credEl.textContent = `${credits} / ${total} credits`;
-    progEl.style.width = `${Math.min(100, (credits / total) * 100)}%`;
-    if (pillEl) pillEl.textContent = `${Math.round(weight * 100)}% of degree`;
+    const card = document.createElement('div');
+    card.className = 'year-stat-card';
+    card.innerHTML = `
+      <div class="year-stat-header">
+        <span class="year-label">Year ${year}</span>
+        <span class="year-weight-pill">${Math.round(weight * 100)}% of degree</span>
+      </div>
+      <div class="year-avg${avg === null ? ' no-data' : ''}">${avg === null ? '--' : fmt(avg) + '%'}</div>
+      <div class="year-credits-label">${credits} / ${total} credits</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${Math.min(100, (credits / total) * 100)}%"></div>
+      </div>`;
+    overview.appendChild(card);
   }
+}
+
+function renderTabs() {
+  const years = Object.keys(state.weightings).map(Number).sort();
+  document.querySelector('.year-tabs').innerHTML = years.map(year =>
+    `<button class="tab${year === state.activeYear ? ' active' : ''}" data-year="${year}" onclick="switchTab(${year})">Year ${year}</button>`
+  ).join('');
 }
 
 function renderModules() {
@@ -260,14 +280,31 @@ function renderModules() {
     </div>`;
 
   const items = mods.map((mod, i) => {
+    if (editingKey && editingKey.year === year && editingKey.index === i) {
+      const opts = [15, 20, 30, 40, 45, 60]
+        .map(c => `<option value="${c}"${c === mod.credits ? ' selected' : ''}>${c} cr</option>`)
+        .join('');
+      return `
+        <div class="module-item module-editing">
+          <input class="edit-name" id="edit-name" type="text" value="${escHtml(mod.name || '')}" placeholder="Name" onkeydown="handleEditKey(event,${year},${i})">
+          <input class="edit-grade" id="edit-grade" type="number" value="${mod.grade}" min="0" max="100" onkeydown="handleEditKey(event,${year},${i})">
+          <select class="edit-credits" id="edit-credits" onkeydown="handleEditKey(event,${year},${i})">${opts}</select>
+          <button class="edit-save-btn" onclick="saveEdit(${year},${i})">Save</button>
+          <button class="edit-cancel-btn" onclick="cancelEdit()">✕</button>
+        </div>`;
+    }
+
     const cls = getModuleClassification(mod.grade);
+    const nameHtml = mod.name ? `<span class="module-name">${escHtml(mod.name)}</span>` : '';
     return `
       <div class="module-item">
         <span class="module-num">${i + 1}.</span>
+        ${nameHtml}
         <span class="module-grade">${mod.grade}%</span>
         <span class="module-credits-tag">${mod.credits} cr</span>
         <span class="module-cls-tag mc-${cls.key}">${cls.label}</span>
-        <button class="delete-btn" onclick="removeModule(${year}, ${i})" title="Remove">✕</button>
+        <button class="edit-btn" onclick="startEdit(${year},${i})" title="Edit">✎</button>
+        <button class="delete-btn" onclick="removeModule(${year},${i})" title="Remove">✕</button>
       </div>`;
   }).join('');
 
@@ -311,6 +348,7 @@ function renderTargets(uni) {
 // Event handlers
 
 function switchTab(year) {
+  editingKey = null;
   state.activeYear = Number(year);
   document.querySelectorAll('.tab').forEach(t => {
     t.classList.toggle('active', Number(t.dataset.year) === state.activeYear);
@@ -319,6 +357,7 @@ function switchTab(year) {
 }
 
 function addModule() {
+  const nameInput = document.getElementById('name-input');
   const gradeInput = document.getElementById('grade-input');
   const creditsInput = document.getElementById('credits-input');
 
@@ -340,9 +379,11 @@ function addModule() {
     return;
   }
 
+  const name = nameInput.value.trim();
   if (!state.modules[year]) state.modules[year] = [];
-  state.modules[year].push({ grade, credits });
+  state.modules[year].push({ name, grade, credits });
 
+  nameInput.value = '';
   gradeInput.value = '';
   gradeInput.focus();
 
@@ -351,20 +392,60 @@ function addModule() {
 }
 
 function removeModule(year, index) {
+  editingKey = null;
   state.modules[year].splice(index, 1);
   saveState();
   render();
 }
 
+function startEdit(year, index) {
+  editingKey = { year, index };
+  renderModules();
+}
+
+function saveEdit(year, index) {
+  const grade = parseFloat(document.getElementById('edit-grade').value);
+  if (isNaN(grade) || grade < 0 || grade > 100) {
+    shake(document.getElementById('edit-grade'));
+    showToast('Please enter a valid grade between 0 and 100');
+    return;
+  }
+
+  const credits = parseInt(document.getElementById('edit-credits').value);
+  const name = document.getElementById('edit-name').value.trim();
+
+  const otherCredits = state.modules[year].reduce((s, m, i) => i === index ? s : s + m.credits, 0);
+  const totalAllowed = state.totalCredits[year] || 120;
+  if (otherCredits + credits > totalAllowed) {
+    showToast(`Credits would exceed the ${totalAllowed}-credit limit for Year ${year}`);
+    return;
+  }
+
+  state.modules[year][index] = { name, grade, credits };
+  editingKey = null;
+  saveState();
+  render();
+}
+
+function cancelEdit() {
+  editingKey = null;
+  renderModules();
+}
+
+function handleEditKey(event, year, index) {
+  if (event.key === 'Enter') saveEdit(year, index);
+  if (event.key === 'Escape') cancelEdit();
+}
+
 // Settings
 
 function openSettings() {
+  pendingYearConfig = {
+    weightings: { ...state.weightings },
+    totalCredits: { ...state.totalCredits },
+  };
   document.getElementById('settings-overlay').classList.remove('hidden');
-
-  document.getElementById('weight-2').value = Math.round(state.weightings[2] * 100);
-  document.getElementById('weight-3').value = Math.round(state.weightings[3] * 100);
-  document.getElementById('total-2').value = state.totalCredits[2];
-  document.getElementById('total-3').value = state.totalCredits[3];
+  renderYearSettings();
   document.getElementById('targets-input').value = state.targets.join(', ');
 }
 
@@ -372,18 +453,80 @@ function closeSettings() {
   document.getElementById('settings-overlay').classList.add('hidden');
 }
 
-function applySettings() {
-  const w2 = parseFloat(document.getElementById('weight-2').value) / 100;
-  const w3 = parseFloat(document.getElementById('weight-3').value) / 100;
-  const t2 = parseInt(document.getElementById('total-2').value);
-  const t3 = parseInt(document.getElementById('total-3').value);
-  const targetsRaw = document.getElementById('targets-input').value;
+function renderYearSettings() {
+  const years = Object.keys(pendingYearConfig.weightings).map(Number).sort();
+  const canRemove = years.length > 2;
+  document.getElementById('year-settings').innerHTML = years.map(year => {
+    const w = Math.round(pendingYearConfig.weightings[year] * 100);
+    const t = pendingYearConfig.totalCredits[year] || 120;
+    return `
+      <div class="year-config-row">
+        <span class="year-config-label">Year ${year}</span>
+        <div class="input-unit-group">
+          <input type="number" name="weight" data-year="${year}" min="0" max="100" value="${w}">
+          <span class="unit">%</span>
+        </div>
+        <div class="input-unit-group">
+          <input type="number" name="credits" data-year="${year}" min="1" value="${t}" style="width:60px">
+          <span class="unit">cr</span>
+        </div>
+        ${canRemove ? `<button class="year-remove-btn" onclick="removeYearConfig(${year})" title="Remove Year ${year}">✕</button>` : '<span class="year-remove-placeholder"></span>'}
+      </div>`;
+  }).join('');
+}
 
-  if (isNaN(w2) || isNaN(w3) || w2 < 0 || w3 < 0) {
-    showToast('Please enter valid weightings');
+function syncPendingFromUI() {
+  document.querySelectorAll('#year-settings [name="weight"]').forEach(input => {
+    const year = Number(input.dataset.year);
+    pendingYearConfig.weightings[year] = parseFloat(input.value) / 100 || 0;
+  });
+  document.querySelectorAll('#year-settings [name="credits"]').forEach(input => {
+    const year = Number(input.dataset.year);
+    pendingYearConfig.totalCredits[year] = parseInt(input.value) || 120;
+  });
+}
+
+function addYearConfig() {
+  syncPendingFromUI();
+  const years = Object.keys(pendingYearConfig.weightings).map(Number).sort();
+  const nextYear = Math.max(...years) + 1;
+  pendingYearConfig.weightings[nextYear] = 0;
+  pendingYearConfig.totalCredits[nextYear] = 120;
+  renderYearSettings();
+}
+
+function removeYearConfig(year) {
+  if ((state.modules[year] || []).length > 0) {
+    showToast(`Year ${year} has modules -- remove them first`);
+    return;
+  }
+  syncPendingFromUI();
+  const years = Object.keys(pendingYearConfig.weightings).map(Number);
+  if (years.length <= 2) return;
+  delete pendingYearConfig.weightings[year];
+  delete pendingYearConfig.totalCredits[year];
+  renderYearSettings();
+}
+
+function applySettings() {
+  syncPendingFromUI();
+
+  const newWeightings = {};
+  for (const [year, w] of Object.entries(pendingYearConfig.weightings)) {
+    if (isNaN(w) || w < 0 || w > 1) {
+      showToast('Each weighting must be between 0 and 100');
+      return;
+    }
+    newWeightings[Number(year)] = w;
+  }
+
+  const totalWeight = Object.values(newWeightings).reduce((s, w) => s + w, 0);
+  if (totalWeight > 1.001) {
+    showToast('Year weightings cannot exceed 100% in total');
     return;
   }
 
+  const targetsRaw = document.getElementById('targets-input').value;
   const targets = targetsRaw
     .split(',')
     .map(s => parseFloat(s.trim()))
@@ -395,11 +538,17 @@ function applySettings() {
     return;
   }
 
-  state.weightings[2] = w2;
-  state.weightings[3] = w3;
-  state.totalCredits[2] = isNaN(t2) ? 120 : t2;
-  state.totalCredits[3] = isNaN(t3) ? 120 : t3;
+  state.weightings = newWeightings;
+  state.totalCredits = { ...pendingYearConfig.totalCredits };
   state.targets = targets;
+
+  for (const year of Object.keys(newWeightings)) {
+    if (!state.modules[year]) state.modules[year] = [];
+  }
+
+  if (!state.weightings[state.activeYear]) {
+    state.activeYear = Math.min(...Object.keys(state.weightings).map(Number));
+  }
 
   closeSettings();
   saveState();
@@ -408,10 +557,11 @@ function applySettings() {
 }
 
 function resetSettings() {
-  document.getElementById('weight-2').value = 40;
-  document.getElementById('weight-3').value = 60;
-  document.getElementById('total-2').value = 120;
-  document.getElementById('total-3').value = 120;
+  pendingYearConfig = {
+    weightings: { 2: 0.4, 3: 0.6 },
+    totalCredits: { 2: 120, 3: 120 },
+  };
+  renderYearSettings();
   document.getElementById('targets-input').value = '70, 75, 80';
 }
 

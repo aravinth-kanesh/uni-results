@@ -131,14 +131,15 @@ body {
 /* Stats overview */
 
 .stats-overview {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: start;
 }
 
 /* RWA Hero Card */
 .rwa-card {
+  flex: 2 1 220px;
   background: linear-gradient(135deg, #6366F1 0%, #7C3AED 100%);
   border-radius: var(--radius);
   padding: 30px 32px 28px;
@@ -215,6 +216,7 @@ body {
 
 /* Year stat cards */
 .year-stat-card {
+  flex: 1 1 160px;
   background: var(--surface);
   border-radius: var(--radius);
   padding: 20px 22px;
@@ -401,6 +403,11 @@ body {
   height: 36px;
 }
 
+.form-group input[type="text"] {
+  width: 140px;
+  height: 36px;
+}
+
 .form-group select {
   width: 110px;
   height: 36px;
@@ -497,7 +504,9 @@ body {
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
-  min-width: 48px;
+  width: 52px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .module-credits-tag {
@@ -508,6 +517,9 @@ body {
   border-radius: 99px;
   border: 1px solid var(--border);
   font-weight: 500;
+  width: 52px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .module-cls-tag {
@@ -532,6 +544,101 @@ body {
 }
 
 .delete-btn:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.module-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  transition: all 0.15s;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.edit-btn:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.module-editing {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  gap: 8px;
+}
+
+.module-editing input,
+.module-editing select {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  height: 30px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.module-editing input:focus,
+.module-editing select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 0.12);
+}
+
+.module-editing .edit-name   { flex: 1; min-width: 60px; }
+.module-editing .edit-grade  { width: 68px; }
+.module-editing .edit-credits { width: 90px; cursor: pointer; }
+
+.edit-save-btn {
+  height: 30px;
+  padding: 0 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.edit-save-btn:hover { background: var(--primary-dark); }
+
+.edit-cancel-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  transition: all 0.15s;
+  line-height: 1;
+  font-family: inherit;
+  height: 30px;
+}
+
+.edit-cancel-btn:hover {
   color: var(--danger);
   background: var(--danger-light);
 }
@@ -628,6 +735,66 @@ body {
 .mc-lower  { background: #FFFBEB; color: #B45309; }
 .mc-third  { background: #FFF7ED; color: #C2410C; }
 .mc-fail   { background: #FEF2F2; color: #B91C1C; }
+
+/* Year configuration rows in settings */
+
+.year-config-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.year-config-label {
+  font-size: 14px;
+  color: var(--text-2);
+  min-width: 50px;
+}
+
+.year-remove-placeholder {
+  display: inline-block;
+  width: 28px;
+}
+
+.year-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 5px;
+  font-size: 13px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.year-remove-btn:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.btn-add-year {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px 14px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.btn-add-year:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
 
 /* Settings modal */
 
@@ -862,22 +1029,8 @@ body {
 /* Responsive */
 
 @media (max-width: 960px) {
-  .stats-overview {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  /* RWA card spans both columns on medium screens */
-  .rwa-card {
-    grid-column: span 2;
-  }
-
   .content-grid {
     grid-template-columns: 1fr;
-  }
-
-  .analysis-col {
-    display: flex;
-    flex-direction: column;
   }
 }
 
@@ -886,13 +1039,9 @@ body {
 
   .main { padding: 16px 16px 40px; gap: 16px; }
 
-  .stats-overview { grid-template-columns: 1fr; }
-
-  .rwa-card { grid-column: unset; }
+  .rwa-card { flex-basis: 100%; }
 
   .rwa-value { font-size: 48px; }
 
   .add-form { flex-wrap: wrap; }
-
-  .analysis-col { grid-template-columns: 1fr; }
 }
