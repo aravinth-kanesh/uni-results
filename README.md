@@ -10,9 +10,10 @@ No install, no build step - just open `index.html`.
 
 ## What it does
 
-- Tracks module grades across Year 2 and Year 3, each with configurable credit weightings
+- Tracks module grades across any number of years, each with configurable credit weightings
 - Computes a **running weighted average** normalised to the years that have data (so if you've only entered Year 2 grades, the RWA reflects Year 2 alone, not a half-baked weighted sum)
 - For each target grade (default: 70%, 75%, 80%), shows the average you need across all remaining credits to hit it
+- Lets you name each module and edit grades in place without deleting and re-adding
 - Persists your grades in browser local storage - grades survive page refreshes
 
 ## How to run
@@ -47,11 +48,10 @@ The **required average** calculation works backwards: given how much of the degr
 
 Click **Settings** to change:
 
-- Year weightings (they don't need to sum to 100)
-- Total credits per year (default: 120 each)
+- Year weightings and total credits per year (years can be added or removed - useful for integrated masters, medicine, or dentistry courses)
 - Target grades shown in the analysis panel
 
-Settings are saved in local storage alongside your grades.
+Weightings don't need to sum to 100. Settings are saved in local storage alongside your grades.
 
 ## Project structure
 
@@ -64,7 +64,7 @@ uni_results.py   — same logic in Python, runnable standalone
 
 ## Customising for your course
 
-If your degree weights Year 1, or uses a different credit structure, update the defaults in `app.js`:
+The defaults are Year 2 (40%) and Year 3 (60%), each with 120 credits. You can change any of this at runtime via Settings without touching the code, or update the defaults in `app.js`:
 
 ```js
 const DEFAULT_STATE = {
@@ -73,5 +73,3 @@ const DEFAULT_STATE = {
   ...
 };
 ```
-
-Or just change it at runtime via Settings without touching the code.
