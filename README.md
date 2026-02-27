@@ -26,14 +26,6 @@ open index.html
 
 Or double-click it in Finder. That's it.
 
-To run the Python version (useful for scripting or checking the maths):
-
-```bash
-python uni_results.py
-```
-
-Requires Python 3. No third-party packages.
-
 ## How the RWA is calculated
 
 Each year has a weighting (e.g. Year 2 = 40%, Year 3 = 60%). The RWA is the weighted average of the year averages, normalised by the total weight of years that have any grades entered:
@@ -46,7 +38,7 @@ where the sums are only over years with at least one grade. This means the RWA i
 
 The **required average** calculation works backwards: given how much of the degree is already locked in, what average do you need across all remaining credits (across all years) to reach the target?
 
-The **what-if** calculation goes the other way: fill every remaining credit slot with your hypothetical grade and compute the resulting RWA using the full year weight denominator (since all years now have data).
+The **what-if** calculation works the other way: fill every remaining credit with a hypothetical grade and compute the resulting RWA across all years.
 
 ## Settings
 
@@ -61,10 +53,9 @@ Weightings don't need to sum to 100. Settings are saved in local storage alongsi
 ## Project structure
 
 ```
-index.html       — app shell and settings modal
-style.css        — all styling, no framework
-app.js           — UniResults class + UI logic
-uni_results.py   — same logic in Python, runnable standalone
+index.html   — app shell and settings modal
+style.css    — all styling, no framework
+app.js       — UniResults class + UI logic
 ```
 
 ## Customising for your course

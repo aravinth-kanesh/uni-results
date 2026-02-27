@@ -221,7 +221,7 @@ function renderStats(uni) {
     breakdownEl.innerHTML = lines.join('<br>');
   }
 
-  // Year cards -- remove old ones and re-render
+  // Year cards: remove old, re-render
   const overview = document.querySelector('.stats-overview');
   overview.querySelectorAll('.year-stat-card').forEach(el => el.remove());
 
@@ -528,7 +528,7 @@ function addYearConfig() {
 
 function removeYearConfig(year) {
   if ((state.modules[year] || []).length > 0) {
-    showToast(`Year ${year} has modules -- remove them first`);
+    showToast(`Year ${year} still has modules. Remove them first.`);
     return;
   }
   syncPendingFromUI();
