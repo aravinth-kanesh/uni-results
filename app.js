@@ -183,6 +183,7 @@ function render() {
   renderTabs();
   renderModules();
   renderTargets(uni);
+  updateWhatIf();
 }
 
 function renderStats(uni) {
@@ -309,6 +310,36 @@ function renderModules() {
   }).join('');
 
   container.innerHTML = `<div class="modules-list">${header}${items}</div>`;
+}
+
+function projectedRwa(hypothetical) {
+  let numerator = 0;
+  let denominator = 0;
+  for (const [year, weight] of Object.entries(state.weightings)) {
+    const total = state.totalCredits[year] || 0;
+    if (total === 0) continue;
+    const mods = state.modules[year] || [];
+    const completedCredits = mods.reduce((s, m) => s + m.credits, 0);
+    const weightedSum = mods.reduce((s, m) => s + m.grade * m.credits, 0);
+    const remaining = Math.max(0, total - completedCredits);
+    const projYearAvg = (weightedSum + hypothetical * remaining) / total;
+    numerator += weight * projYearAvg;
+    denominator += weight;
+  }
+  return denominator > 0 ? numerator / denominator : 0;
+}
+
+function updateWhatIf() {
+  const input = document.getElementById('whatif-input');
+  const resultEl = document.getElementById('whatif-result');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 0 || val > 100) {
+    resultEl.innerHTML = '';
+    return;
+  }
+  const projected = projectedRwa(val);
+  const cls = getClassification(projected);
+  resultEl.innerHTML = `<span class="whatif-rwa">${fmt(projected)}%</span><span class="whatif-cls">${cls ? cls.label : ''}</span>`;
 }
 
 function renderTargets(uni) {
@@ -583,6 +614,29 @@ function shake(el) {
   el.offsetHeight; // reflow
   el.style.animation = 'shake 0.3s ease';
   setTimeout(() => el.style.animation = '', 300);
+}
+
+function exportCSV() {
+  const rows = ['Year,Name,Grade (%),Credits'];
+  for (const year of Object.keys(state.modules).map(Number).sort()) {
+    for (const mod of (state.modules[year] || [])) {
+      const name = (mod.name || '').replace(/"/g, '""');
+      rows.push(`${year},"${name}",${mod.grade},${mod.credits}`);
+    }
+  }
+  triggerDownload('uni-results.csv', rows.join('\n'), 'text/csv');
+}
+
+function exportJSON() {
+  triggerDownload('uni-results.json', JSON.stringify(state, null, 2), 'application/json');
+}
+
+function triggerDownload(filename, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 loadState();

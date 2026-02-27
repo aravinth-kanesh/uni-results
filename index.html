@@ -59,6 +59,15 @@
           <p class="settings-note">e.g. <code>60, 70, 80</code></p>
         </div>
 
+        <div class="settings-group">
+          <h3>Data</h3>
+          <div class="export-row">
+            <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+            <button class="btn-export" onclick="exportJSON()">Export JSON</button>
+          </div>
+          <p class="settings-note">Downloads a file you can use as a backup or to move between browsers.</p>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" onclick="resetSettings()">Reset Defaults</button>
@@ -134,6 +143,17 @@
           <h2>Target Analysis</h2>
           <p class="card-subtitle">Minimum average needed across all remaining credits to hit each target.</p>
           <div id="targets-display"></div>
+        </div>
+
+        <!-- What-if -->
+        <div class="card">
+          <h2>What-if</h2>
+          <p class="card-subtitle">Average this grade across all remaining credits and see where you end up.</p>
+          <div class="whatif-row">
+            <input type="number" class="whatif-input" id="whatif-input" min="0" max="100"
+                   placeholder="e.g. 72" oninput="updateWhatIf()" autocomplete="off">
+            <div class="whatif-result" id="whatif-result"></div>
+          </div>
         </div>
 
       </div><!-- /analysis-col -->

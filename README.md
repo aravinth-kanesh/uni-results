@@ -4,7 +4,7 @@ A lightweight browser app for tracking your degree average as you go, with a run
 
 No install, no build step - just open `index.html`.
 
-![Screenshot of the app showing RWA, year averages, and target analysis](screenshot.png)
+![Screenshot of the app showing RWA, year averages, target analysis, and what-if](screenshot.png)
 
 ---
 
@@ -13,8 +13,10 @@ No install, no build step - just open `index.html`.
 - Tracks module grades across any number of years, each with configurable credit weightings
 - Computes a **running weighted average** normalised to the years that have data (so if you've only entered Year 2 grades, the RWA reflects Year 2 alone, not a half-baked weighted sum)
 - For each target grade (default: 70%, 75%, 80%), shows the average you need across all remaining credits to hit it
+- **What-if**: type a hypothetical grade and see your projected final RWA instantly
 - Lets you name each module and edit grades in place without deleting and re-adding
-- Persists your grades in browser local storage - grades survive page refreshes
+- Export your grades as CSV or JSON for a backup or to move between browsers
+- Persists everything in browser local storage - grades survive page refreshes
 
 ## How to run
 
@@ -44,12 +46,15 @@ where the sums are only over years with at least one grade. This means the RWA i
 
 The **required average** calculation works backwards: given how much of the degree is already locked in, what average do you need across all remaining credits (across all years) to reach the target?
 
+The **what-if** calculation goes the other way: fill every remaining credit slot with your hypothetical grade and compute the resulting RWA using the full year weight denominator (since all years now have data).
+
 ## Settings
 
 Click **Settings** to change:
 
 - Year weightings and total credits per year (years can be added or removed - useful for integrated masters, medicine, or dentistry courses)
 - Target grades shown in the analysis panel
+- Export your data as CSV or JSON
 
 Weightings don't need to sum to 100. Settings are saved in local storage alongside your grades.
 

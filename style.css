@@ -736,6 +736,80 @@ body {
 .mc-third  { background: #FFF7ED; color: #C2410C; }
 .mc-fail   { background: #FEF2F2; color: #B91C1C; }
 
+/* What-if */
+
+.whatif-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.whatif-input {
+  width: 90px;
+  height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.whatif-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.12);
+}
+
+.whatif-result {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.whatif-rwa {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.whatif-cls {
+  font-size: 13px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+/* Export buttons */
+
+.export-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-export {
+  padding: 7px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.btn-export:hover {
+  background: var(--bg);
+  border-color: var(--text-3);
+  color: var(--text);
+}
+
 /* Year configuration rows in settings */
 
 .year-config-row {
