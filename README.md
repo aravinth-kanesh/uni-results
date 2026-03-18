@@ -15,8 +15,10 @@ No install, no build step - just open `index.html`.
 - For each target grade (default: 70%, 75%, 80%), shows the average you need across all remaining credits to hit it
 - **What-if**: type a hypothetical grade and see your projected final RWA instantly
 - Lets you name each module and edit grades in place without deleting and re-adding
+- Undo accidental deletions with a dismissible toast
 - Export your grades as CSV or JSON, and import a previously exported JSON file to restore or move between browsers
 - Persists everything in browser local storage - grades survive page refreshes
+- Dark mode toggle in the header, with preference saved across sessions
 
 ## How to run
 
@@ -44,9 +46,12 @@ The **what-if** calculation works the other way: fill every remaining credit wit
 
 Click **Settings** to change:
 
-- Year weightings and total credits per year (years can be added or removed - useful for integrated masters, medicine, or dentistry courses)
+- Year weightings, total credits, and custom labels per year (e.g. label Year 2 as "2023/24"); years can be added or removed - useful for integrated masters, medicine, or dentistry courses
+- Grade boundaries for First, 2:1, 2:2, and Third class (defaults: 70/60/50/40)
 - Target grades shown in the analysis panel
 - Export your data as CSV or JSON, and import a JSON backup to restore grades or switch browsers
+
+Press **?** anywhere in the app to open Settings without reaching for the mouse.
 
 Weightings don't need to sum to 100. Settings are saved in local storage alongside your grades.
 

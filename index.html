@@ -28,9 +28,10 @@
         <div class="header-logo">🎓</div>
         <h1>University Results</h1>
       </div>
-      <button class="settings-btn" onclick="openSettings()">
-        ⚙ Settings
-      </button>
+      <div class="header-actions">
+        <button class="dark-btn" id="dark-btn" onclick="toggleDark()" title="Toggle dark mode">☾</button>
+        <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+      </div>
     </div>
   </header>
 
@@ -47,7 +48,13 @@
           <h3>Year Configuration</h3>
           <div id="year-settings"></div>
           <button class="btn-add-year" onclick="addYearConfig()">+ Add year</button>
-          <p class="settings-note">Weightings don't need to sum to 100. Only years with grades entered contribute to the RWA.</p>
+          <p class="settings-note">Weightings don't need to sum to 100. Custom labels replace "Year N" throughout the app. Only years with grades entered contribute to the RWA.</p>
+        </div>
+
+        <div class="settings-group">
+          <h3>Grade Boundaries</h3>
+          <div id="boundaries-settings"></div>
+          <p class="settings-note">Thresholds for First, 2:1, 2:2, and Third class. Must be in descending order.</p>
         </div>
 
         <div class="settings-group">

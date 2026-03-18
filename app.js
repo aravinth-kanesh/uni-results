@@ -72,6 +72,7 @@ class UniResults {
 const DEFAULT_STATE = {
   weightings: { 2: 0.4, 3: 0.6 },
   totalCredits: { 2: 120, 3: 120 },
+  yearLabels: { 2: '', 3: '' },
   modules: {
     2: [
       { grade: 76, credits: 15 },
@@ -89,12 +90,15 @@ const DEFAULT_STATE = {
     ],
   },
   targets: [70, 75, 80],
+  boundaries: [70, 60, 50, 40],
   activeYear: 2,
 };
 
 let state;
 let editingKey = null;
 let pendingYearConfig = null;
+let pendingBoundaries = null;
+let lastRemoved = null;
 
 function loadState() {
   try {
@@ -110,6 +114,8 @@ function loadState() {
   } catch {
     state = JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
+  if (!state.yearLabels) state.yearLabels = {};
+  if (!state.boundaries || state.boundaries.length !== 4) state.boundaries = [70, 60, 50, 40];
 }
 
 function saveState() {
@@ -143,22 +149,28 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function getYearLabel(year) {
+  return (state.yearLabels && state.yearLabels[year]) || `Year ${year}`;
+}
+
 // Classification helpers
 
 function getClassification(avg) {
   if (avg === null || avg === undefined) return null;
-  if (avg >= 70) return { label: 'First Class', key: 'first' };
-  if (avg >= 60) return { label: 'Upper Second (2:1)', key: 'upper' };
-  if (avg >= 50) return { label: 'Lower Second (2:2)', key: 'lower' };
-  if (avg >= 40) return { label: 'Third Class', key: 'third' };
+  const [b1, b2, b3, b4] = state.boundaries;
+  if (avg >= b1) return { label: 'First Class', key: 'first' };
+  if (avg >= b2) return { label: 'Upper Second (2:1)', key: 'upper' };
+  if (avg >= b3) return { label: 'Lower Second (2:2)', key: 'lower' };
+  if (avg >= b4) return { label: 'Third Class', key: 'third' };
   return { label: 'Fail', key: 'fail' };
 }
 
 function getModuleClassification(grade) {
-  if (grade >= 70) return { label: '1st', key: 'first' };
-  if (grade >= 60) return { label: '2:1', key: 'upper' };
-  if (grade >= 50) return { label: '2:2', key: 'lower' };
-  if (grade >= 40) return { label: '3rd', key: 'third' };
+  const [b1, b2, b3, b4] = state.boundaries;
+  if (grade >= b1) return { label: '1st', key: 'first' };
+  if (grade >= b2) return { label: '2:1', key: 'upper' };
+  if (grade >= b3) return { label: '2:2', key: 'lower' };
+  if (grade >= b4) return { label: '3rd', key: 'third' };
   return { label: 'Fail', key: 'fail' };
 }
 
@@ -215,7 +227,7 @@ function renderStats(uni) {
       const avg = uni.getYearAvg(year);
       if (avg !== null) {
         const normWeight = weight / activeWeight;
-        lines.push(`Year ${year}: ${fmt(avg)}% × ${Math.round(normWeight * 100)}% = ${fmt(normWeight * avg)}%`);
+        lines.push(`${escHtml(getYearLabel(year))}: ${fmt(avg)}% × ${Math.round(normWeight * 100)}% = ${fmt(normWeight * avg)}%`);
       }
     }
     breakdownEl.innerHTML = lines.join('<br>');
@@ -236,7 +248,7 @@ function renderStats(uni) {
     card.className = 'year-stat-card';
     card.innerHTML = `
       <div class="year-stat-header">
-        <span class="year-label">Year ${year}</span>
+        <span class="year-label">${escHtml(getYearLabel(year))}</span>
         <span class="year-weight-pill">${Math.round(weight * 100)}% of degree</span>
       </div>
       <div class="year-avg${avg === null ? ' no-data' : ''}">${avg === null ? '--' : fmt(avg) + '%'}</div>
@@ -251,7 +263,7 @@ function renderStats(uni) {
 function renderTabs() {
   const years = Object.keys(state.weightings).map(Number).sort();
   document.querySelector('.year-tabs').innerHTML = years.map(year =>
-    `<button class="tab${year === state.activeYear ? ' active' : ''}" data-year="${year}" onclick="switchTab(${year})">Year ${year}</button>`
+    `<button class="tab${year === state.activeYear ? ' active' : ''}" data-year="${year}" onclick="switchTab(${year})">${escHtml(getYearLabel(year))}</button>`
   ).join('');
 }
 
@@ -264,7 +276,7 @@ function renderModules() {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">📋</div>
-        No modules added for Year ${year} yet.<br>Enter a grade above to get started.
+        No modules added for ${escHtml(getYearLabel(year))} yet.<br>Enter a grade above to get started.
       </div>`;
     return;
   }
@@ -276,7 +288,7 @@ function renderModules() {
 
   const header = `
     <div class="modules-header">
-      <span class="modules-title">Year ${year}: ${mods.length} module${mods.length !== 1 ? 's' : ''}</span>
+      <span class="modules-title">${escHtml(getYearLabel(year))}: ${mods.length} module${mods.length !== 1 ? 's' : ''}</span>
       <span class="modules-summary">${totalCredits} credits · avg ${fmt(avg)}%</span>
     </div>`;
 
@@ -406,7 +418,7 @@ function addModule() {
   const totalAllowed = state.totalCredits[year] || 120;
 
   if (totalUsed + credits > totalAllowed) {
-    showToast(`Adding ${credits} credits would exceed the ${totalAllowed}-credit limit for Year ${year}`);
+    showToast(`Adding ${credits} credits would exceed the ${totalAllowed}-credit limit for ${getYearLabel(year)}`);
     return;
   }
 
@@ -423,10 +435,23 @@ function addModule() {
 }
 
 function removeModule(year, index) {
+  lastRemoved = { year, index, mod: state.modules[year][index] };
   editingKey = null;
   state.modules[year].splice(index, 1);
   saveState();
   render();
+  showUndoToast('Module removed.');
+}
+
+function undoRemove() {
+  if (!lastRemoved) return;
+  const { year, index, mod } = lastRemoved;
+  lastRemoved = null;
+  if (!state.modules[year]) state.modules[year] = [];
+  state.modules[year].splice(index, 0, mod);
+  saveState();
+  render();
+  hideToast();
 }
 
 function startEdit(year, index) {
@@ -448,7 +473,7 @@ function saveEdit(year, index) {
   const otherCredits = state.modules[year].reduce((s, m, i) => i === index ? s : s + m.credits, 0);
   const totalAllowed = state.totalCredits[year] || 120;
   if (otherCredits + credits > totalAllowed) {
-    showToast(`Credits would exceed the ${totalAllowed}-credit limit for Year ${year}`);
+    showToast(`Credits would exceed the ${totalAllowed}-credit limit for ${getYearLabel(year)}`);
     return;
   }
 
@@ -468,15 +493,22 @@ function handleEditKey(event, year, index) {
   if (event.key === 'Escape') cancelEdit();
 }
 
+function handleEnter(event) {
+  if (event.key === 'Enter') addModule();
+}
+
 // Settings
 
 function openSettings() {
   pendingYearConfig = {
     weightings: { ...state.weightings },
     totalCredits: { ...state.totalCredits },
+    yearLabels: { ...state.yearLabels },
   };
+  pendingBoundaries = [...state.boundaries];
   document.getElementById('settings-overlay').classList.remove('hidden');
   renderYearSettings();
+  renderBoundarySettings();
   document.getElementById('targets-input').value = state.targets.join(', ');
 }
 
@@ -490,9 +522,11 @@ function renderYearSettings() {
   document.getElementById('year-settings').innerHTML = years.map(year => {
     const w = Math.round(pendingYearConfig.weightings[year] * 100);
     const t = pendingYearConfig.totalCredits[year] || 120;
+    const lbl = escHtml(pendingYearConfig.yearLabels[year] || '');
     return `
       <div class="year-config-row">
         <span class="year-config-label">Year ${year}</span>
+        <input type="text" name="label" data-year="${year}" value="${lbl}" placeholder="Custom label" class="year-label-input">
         <div class="input-unit-group">
           <input type="number" name="weight" data-year="${year}" min="0" max="100" value="${w}">
           <span class="unit">%</span>
@@ -506,6 +540,18 @@ function renderYearSettings() {
   }).join('');
 }
 
+function renderBoundarySettings() {
+  const labels = ['First', '2:1', '2:2', 'Third'];
+  document.getElementById('boundaries-settings').innerHTML = labels.map((label, i) => `
+    <div class="settings-row">
+      <label>${label}</label>
+      <div class="input-unit-group">
+        <input type="number" id="boundary-${i}" min="0" max="100" value="${pendingBoundaries[i]}">
+        <span class="unit">%</span>
+      </div>
+    </div>`).join('');
+}
+
 function syncPendingFromUI() {
   document.querySelectorAll('#year-settings [name="weight"]').forEach(input => {
     const year = Number(input.dataset.year);
@@ -515,6 +561,10 @@ function syncPendingFromUI() {
     const year = Number(input.dataset.year);
     pendingYearConfig.totalCredits[year] = parseInt(input.value) || 120;
   });
+  document.querySelectorAll('#year-settings [name="label"]').forEach(input => {
+    const year = Number(input.dataset.year);
+    pendingYearConfig.yearLabels[year] = input.value.trim();
+  });
 }
 
 function addYearConfig() {
@@ -523,12 +573,13 @@ function addYearConfig() {
   const nextYear = Math.max(...years) + 1;
   pendingYearConfig.weightings[nextYear] = 0;
   pendingYearConfig.totalCredits[nextYear] = 120;
+  pendingYearConfig.yearLabels[nextYear] = '';
   renderYearSettings();
 }
 
 function removeYearConfig(year) {
   if ((state.modules[year] || []).length > 0) {
-    showToast(`Year ${year} still has modules. Remove them first.`);
+    showToast(`${getYearLabel(year)} still has modules. Remove them first.`);
     return;
   }
   syncPendingFromUI();
@@ -536,6 +587,7 @@ function removeYearConfig(year) {
   if (years.length <= 2) return;
   delete pendingYearConfig.weightings[year];
   delete pendingYearConfig.totalCredits[year];
+  delete pendingYearConfig.yearLabels[year];
   renderYearSettings();
 }
 
@@ -557,6 +609,21 @@ function applySettings() {
     return;
   }
 
+  const rawBounds = [0, 1, 2, 3].map(i => {
+    const el = document.getElementById(`boundary-${i}`);
+    return el ? parseFloat(el.value) : state.boundaries[i];
+  });
+  if (rawBounds.some(b => isNaN(b) || b < 0 || b > 100)) {
+    showToast('Grade boundaries must be between 0 and 100');
+    return;
+  }
+  for (let i = 0; i < rawBounds.length - 1; i++) {
+    if (rawBounds[i] <= rawBounds[i + 1]) {
+      showToast('Grade boundaries must be in descending order');
+      return;
+    }
+  }
+
   const targetsRaw = document.getElementById('targets-input').value;
   const targets = targetsRaw
     .split(',')
@@ -571,7 +638,9 @@ function applySettings() {
 
   state.weightings = newWeightings;
   state.totalCredits = { ...pendingYearConfig.totalCredits };
+  state.yearLabels = { ...pendingYearConfig.yearLabels };
   state.targets = targets;
+  state.boundaries = rawBounds;
 
   for (const year of Object.keys(newWeightings)) {
     if (!state.modules[year]) state.modules[year] = [];
@@ -591,16 +660,18 @@ function resetSettings() {
   pendingYearConfig = {
     weightings: { 2: 0.4, 3: 0.6 },
     totalCredits: { 2: 120, 3: 120 },
+    yearLabels: { 2: '', 3: '' },
   };
+  pendingBoundaries = [70, 60, 50, 40];
   renderYearSettings();
+  renderBoundarySettings();
   document.getElementById('targets-input').value = '70, 75, 80';
 }
 
-function handleEnter(event) {
-  if (event.key === 'Enter') addModule();
-}
+// Toasts
 
 let toastTimer;
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
@@ -609,12 +680,35 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
+function showUndoToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = `${escHtml(msg)} <button class="toast-undo-btn" onclick="undoRemove()">Undo</button>`;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); lastRemoved = null; }, 4000);
+}
+
+function hideToast() {
+  clearTimeout(toastTimer);
+  document.getElementById('toast').classList.remove('show');
+}
+
 function shake(el) {
   el.style.animation = 'none';
   el.offsetHeight; // reflow
   el.style.animation = 'shake 0.3s ease';
   setTimeout(() => el.style.animation = '', 300);
 }
+
+// Dark mode
+
+function toggleDark() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.getElementById('dark-btn').textContent = isDark ? '☀' : '☾';
+  localStorage.setItem('uni-results-dark', isDark ? '1' : '');
+}
+
+// Import / export
 
 function importJSON(event) {
   const file = event.target.files[0];
@@ -637,6 +731,8 @@ function importJSON(event) {
         }
       }
       state = data;
+      if (!state.yearLabels) state.yearLabels = {};
+      if (!state.boundaries || state.boundaries.length !== 4) state.boundaries = [70, 60, 50, 40];
       for (const year of Object.keys(state.weightings)) {
         state.modules[year] = state.modules[year] || [];
       }
@@ -679,9 +775,21 @@ function triggerDownload(filename, text, type) {
 }
 
 loadState();
+if (localStorage.getItem('uni-results-dark')) {
+  document.documentElement.classList.add('dark');
+  document.getElementById('dark-btn').textContent = '☀';
+}
 render();
 
 // Close settings overlay on background click
 document.getElementById('settings-overlay').addEventListener('click', function (e) {
   if (e.target === this) closeSettings();
+});
+
+// Keyboard shortcut: ? opens settings, Escape closes it
+document.addEventListener('keydown', function (e) {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  if (e.key === '?' && !inInput && !e.ctrlKey && !e.metaKey) openSettings();
+  if (e.key === 'Escape') closeSettings();
 });

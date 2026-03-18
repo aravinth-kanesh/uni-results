@@ -41,6 +41,27 @@
   --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.1), 0 2px 6px -2px rgb(0 0 0 / 0.06);
 }
 
+html.dark {
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-2: #162032;
+  --border: #334155;
+  --text: #F1F5F9;
+  --text-2: #CBD5E1;
+  --text-3: #64748B;
+  --primary-light: #1E1B4B;
+  --success-light: #052E16;
+  --success-border: #166534;
+  --info-light: #0C1A3A;
+  --info-border: #1E3A8A;
+  --warning-light: #1C1408;
+  --warning-border: #92400E;
+  --danger-light: #2D0707;
+  --danger-border: #991B1B;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 6px -2px rgb(0 0 0 / 0.3);
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
@@ -112,6 +133,34 @@ body {
 }
 
 .settings-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dark-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.dark-btn:hover {
   background: var(--primary-light);
   border-color: var(--primary);
   color: var(--primary);
@@ -817,6 +866,27 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.year-label-input {
+  flex: 1;
+  min-width: 70px;
+  max-width: 110px;
+  padding: 7px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.year-label-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.12);
 }
 
 .year-config-label {
@@ -1098,6 +1168,55 @@ body {
 
 .toast.show {
   transform: translateX(-50%) translateY(0);
+}
+
+/* Dark mode overrides for hardcoded target row colours */
+
+html.dark .tr-achieved,
+html.dark .tr-easy     { background: #052E16; border-color: #166534; }
+html.dark .tr-moderate { background: #0C1A3A; border-color: #1E3A8A; }
+html.dark .tr-hard     { background: #1C1408; border-color: #92400E; }
+html.dark .tr-vhard    { background: #1C1100; border-color: #C2410C; }
+html.dark .tr-impossible { background: #1C0A0A; border-color: #991B1B; }
+
+html.dark .ts-achieved,
+html.dark .ts-easy     { background: #14532D; color: #86EFAC; }
+html.dark .ts-moderate { background: #1E3A8A; color: #BAE6FD; }
+html.dark .ts-hard     { background: #78350F; color: #FDE68A; }
+html.dark .ts-vhard    { background: #7C2D12; color: #FED7AA; }
+html.dark .ts-impossible { background: #7F1D1D; color: #FEE2E2; }
+
+html.dark .mc-first { background: #1E1B4B; color: #A5B4FC; }
+html.dark .mc-upper { background: #1E3A5F; color: #93C5FD; }
+html.dark .mc-lower { background: #2D1B00; color: #FCD34D; }
+html.dark .mc-third { background: #2D1200; color: #FDBA74; }
+html.dark .mc-fail  { background: #2D0707; color: #FCA5A5; }
+
+html.dark .modal {
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);
+}
+
+html.dark .overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Toast undo button */
+
+.toast-undo-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 6px;
+}
+
+.toast-undo-btn:hover {
+  color: white;
 }
 
 /* Responsive */
