@@ -53,9 +53,9 @@ Weightings don't need to sum to 100. Settings are saved in local storage alongsi
 ## Project structure
 
 ```
-index.html   — app shell and settings modal
-style.css    — all styling, no framework
-app.js       — UniResults class + UI logic
+index.html   - app shell and settings modal
+style.css    - all styling, no framework
+app.js       - UniResults class + UI logic
 ```
 
 ## Customising for your course
