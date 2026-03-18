@@ -1043,6 +1043,8 @@ body {
   padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--text);
   text-align: right;
   font-size: 14px;
   font-family: inherit;
@@ -1173,18 +1175,18 @@ body {
 /* Dark mode overrides for hardcoded target row colours */
 
 html.dark .tr-achieved,
-html.dark .tr-easy     { background: #052E16; border-color: #166534; }
-html.dark .tr-moderate { background: #0C1A3A; border-color: #1E3A8A; }
-html.dark .tr-hard     { background: #1C1408; border-color: #92400E; }
-html.dark .tr-vhard    { background: #1C1100; border-color: #C2410C; }
-html.dark .tr-impossible { background: #1C0A0A; border-color: #991B1B; }
+html.dark .tr-easy     { background: #0E2D1C; border-color: #1E6B3A; }
+html.dark .tr-moderate { background: #0E1F3D; border-color: #2352A0; }
+html.dark .tr-hard     { background: #2A1D07; border-color: #8A5A10; }
+html.dark .tr-vhard    { background: #2A1408; border-color: #A04018; }
+html.dark .tr-impossible { background: #2A0E0E; border-color: #8A1E1E; }
 
 html.dark .ts-achieved,
-html.dark .ts-easy     { background: #14532D; color: #86EFAC; }
-html.dark .ts-moderate { background: #1E3A8A; color: #BAE6FD; }
-html.dark .ts-hard     { background: #78350F; color: #FDE68A; }
-html.dark .ts-vhard    { background: #7C2D12; color: #FED7AA; }
-html.dark .ts-impossible { background: #7F1D1D; color: #FEE2E2; }
+html.dark .ts-easy     { background: #1A5230; color: #6EE7B7; }
+html.dark .ts-moderate { background: #1A3A8A; color: #93C5FD; }
+html.dark .ts-hard     { background: #7A4010; color: #FCD34D; }
+html.dark .ts-vhard    { background: #7A2E12; color: #FDBA74; }
+html.dark .ts-impossible { background: #7A1E1E; color: #FCA5A5; }
 
 html.dark .mc-first { background: #1E1B4B; color: #A5B4FC; }
 html.dark .mc-upper { background: #1E3A5F; color: #93C5FD; }
