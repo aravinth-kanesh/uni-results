@@ -282,14 +282,11 @@ function renderModules() {
 
   const items = mods.map((mod, i) => {
     if (editingKey && editingKey.year === year && editingKey.index === i) {
-      const opts = [15, 20, 30, 40, 45, 60]
-        .map(c => `<option value="${c}"${c === mod.credits ? ' selected' : ''}>${c} cr</option>`)
-        .join('');
       return `
         <div class="module-item module-editing">
           <input class="edit-name" id="edit-name" type="text" value="${escHtml(mod.name || '')}" placeholder="Name" onkeydown="handleEditKey(event,${year},${i})">
           <input class="edit-grade" id="edit-grade" type="number" value="${mod.grade}" min="0" max="100" onkeydown="handleEditKey(event,${year},${i})">
-          <select class="edit-credits" id="edit-credits" onkeydown="handleEditKey(event,${year},${i})">${opts}</select>
+          <input class="edit-credits" id="edit-credits" type="number" value="${mod.credits}" min="0.5" step="0.5" onkeydown="handleEditKey(event,${year},${i})">
           <button class="edit-save-btn" onclick="saveEdit(${year},${i})">Save</button>
           <button class="edit-cancel-btn" onclick="cancelEdit()">✕</button>
         </div>`;
@@ -393,11 +390,17 @@ function addModule() {
   const creditsInput = document.getElementById('credits-input');
 
   const grade = parseFloat(gradeInput.value);
-  const credits = parseInt(creditsInput.value);
+  const credits = parseFloat(creditsInput.value);
 
   if (isNaN(grade) || grade < 0 || grade > 100) {
     shake(gradeInput);
     showToast('Please enter a valid grade between 0 and 100');
+    return;
+  }
+
+  if (isNaN(credits) || credits <= 0) {
+    shake(creditsInput);
+    showToast('Please enter a valid credit value');
     return;
   }
 
@@ -455,7 +458,7 @@ function saveEdit(year, index) {
     return;
   }
 
-  const credits = parseInt(document.getElementById('edit-credits').value);
+  const credits = parseFloat(document.getElementById('edit-credits').value);
   const name = document.getElementById('edit-name').value.trim();
 
   const otherCredits = state.modules[year].reduce((s, m, i) => i === index ? s : s + m.credits, 0);

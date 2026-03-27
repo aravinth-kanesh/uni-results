@@ -463,6 +463,10 @@ body {
   cursor: pointer;
 }
 
+#credits-input {
+  width: 110px;
+}
+
 /* btn-add sits inside a form-group, so it must match input/select height exactly */
 
 /* keeps the Add button vertically aligned with the labelled inputs */
@@ -654,7 +658,7 @@ body {
 
 .module-editing .edit-name   { flex: 1; min-width: 60px; }
 .module-editing .edit-grade  { width: 68px; }
-.module-editing .edit-credits { width: 90px; cursor: pointer; }
+.module-editing .edit-credits { width: 90px; }
 
 .edit-save-btn {
   height: 30px;
@@ -1093,6 +1097,7 @@ body {
   outline: none;
   font-size: 14px;
   font-family: inherit;
+  color: var(--text);
   text-align: right;
   background: transparent;
   /* override the generic .settings-row input rule */
