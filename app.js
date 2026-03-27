@@ -74,20 +74,8 @@ const DEFAULT_STATE = {
   totalCredits: { 2: 120, 3: 120 },
   yearLabels: { 2: '', 3: '' },
   modules: {
-    2: [
-      { grade: 76, credits: 15 },
-      { grade: 84, credits: 15 },
-      { grade: 88, credits: 15 },
-      { grade: 72, credits: 15 },
-      { grade: 78, credits: 15 },
-      { grade: 70, credits: 15 },
-      { grade: 71, credits: 30 },
-    ],
-    3: [
-      { grade: 69, credits: 15 },
-      { grade: 94, credits: 15 },
-      { grade: 80, credits: 15 },
-    ],
+    2: [],
+    3: [],
   },
   targets: [70, 75, 80],
   boundaries: [70, 60, 50, 40],

@@ -48,7 +48,7 @@ html.dark {
   --border: #334155;
   --text: #F1F5F9;
   --text-2: #CBD5E1;
-  --text-3: #64748B;
+  --text-3: #94A3B8;
   --primary-light: #1E1B4B;
   --success-light: #052E16;
   --success-border: #166534;
@@ -892,7 +892,7 @@ body {
 .year-config-label {
   font-size: 14px;
   color: var(--text-2);
-  min-width: 50px;
+  min-width: 60px;
 }
 
 .year-remove-placeholder {
@@ -966,7 +966,7 @@ body {
 .modal {
   background: var(--surface);
   border-radius: var(--radius);
-  width: 440px;
+  width: 480px;
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 64px);
   overflow: auto;
@@ -983,7 +983,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 22px 24px 0;
+  padding: 24px 28px 0;
 }
 
 .modal-header h2 {
@@ -1010,11 +1010,19 @@ body {
 }
 
 .modal-body {
-  padding: 20px 24px;
+  padding: 22px 28px;
 }
 
 .settings-group {
-  margin-bottom: 22px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-group:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
 }
 
 .settings-group h3 {
@@ -1023,7 +1031,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-3);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .settings-row {
@@ -1107,7 +1115,7 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 0 24px 22px;
+  padding: 0 28px 24px;
 }
 
 .btn-primary {
@@ -1200,6 +1208,12 @@ html.dark .modal {
 
 html.dark .overlay {
   background: rgba(0, 0, 0, 0.7);
+}
+
+html.dark .input-unit-group .unit {
+  color: #CBD5E1 !important;
+  background: #1E2D42;
+  border-left-color: #3D526A;
 }
 
 /* Toast undo button */
