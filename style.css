@@ -1170,8 +1170,9 @@ body {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--text);
-  color: white;
+  background: #1E293B;
+  color: #F1F5F9;
+  border: 1px solid #334155;
   padding: 10px 20px;
   border-radius: 99px;
   font-size: 13px;
@@ -1179,6 +1180,20 @@ body {
   z-index: 300;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+}
+
+html.dark .toast {
+  background: #E2E8F0;
+  color: #1E293B;
+  border-color: #CBD5E1;
+}
+
+html.dark .toast-undo-btn {
+  color: rgba(30, 41, 59, 0.7);
+}
+
+html.dark .toast-undo-btn:hover {
+  color: #1E293B;
 }
 
 .toast.show {

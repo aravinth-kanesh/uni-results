@@ -392,15 +392,22 @@ function addModule() {
   const grade = parseFloat(gradeInput.value);
   const credits = parseFloat(creditsInput.value);
 
-  if (isNaN(grade) || grade < 0 || grade > 100) {
-    shake(gradeInput);
-    showToast('Please enter a valid grade between 0 and 100');
+  const gradeInvalid = isNaN(grade) || grade < 0 || grade > 100;
+  const creditsInvalid = isNaN(credits) || credits <= 0;
+
+  if (gradeInvalid) shake(gradeInput);
+  if (creditsInvalid) shake(creditsInput);
+
+  if (gradeInvalid && creditsInvalid) {
+    showToast('Please enter a grade and a credit value');
     return;
   }
-
-  if (isNaN(credits) || credits <= 0) {
-    shake(creditsInput);
-    showToast('Please enter a valid credit value');
+  if (gradeInvalid) {
+    showToast('Grade must be a number between 0 and 100');
+    return;
+  }
+  if (creditsInvalid) {
+    showToast('Credits must be a positive number');
     return;
   }
 
@@ -454,7 +461,7 @@ function saveEdit(year, index) {
   const grade = parseFloat(document.getElementById('edit-grade').value);
   if (isNaN(grade) || grade < 0 || grade > 100) {
     shake(document.getElementById('edit-grade'));
-    showToast('Please enter a valid grade between 0 and 100');
+    showToast('Grade must be a number between 0 and 100');
     return;
   }
 
